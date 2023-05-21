@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Try FuncSug! (REPL)</title>
+		<link rel="shortcut icon" href="#">
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery.terminal/js/jquery.terminal.min.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal/css/jquery.terminal.min.css"/>
+		<style>
+			:root {
+				--size: 1.2;
+				--color: white;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script src="parser.js"></script>
+		<script src="interpreter.js"></script>
+		<script>
+			const options = {
+				prompt: '[[;#6666ff;]FuncSug Snippet: >  ]',
+				greetings: "[[;#ffffc0;]|===============|\n" +
+				           "|  FuncSug      |\n" +
+				           "|===============|]\n" +
+				           //~ "[[;#cccccc;]This terminal supports only simple expressions.]\n" +
+				           "[[;#cccccc;]This terminal supports no DOM function.]\n" +
+				           "[[;#cccccc;]CTRL+ENTER to insert a newline.]\n",
+				keymap: {
+					'CTRL+ENTER': function(e, originalEffectFunction) {
+						this.insert('\n					')
+					}
+				}
+			}
+			$(function() {
+				$('body').terminal(function(command, t) {
+					const old_log = console.log
+					const old_error = console.error
+					console.log = this.echo
+					console.error = this.error
+					const f_getLocation = function(pn_lineNumber, p_infoTexts) {
+						return {
+							source: 'REPL' ,
+							line: 1
+						}
+					}
+					if (command) execProg('.print :+ "---> " {seq\n' + command + '\n}\n', f_getLocation, true)
+					console.log = old_log
+					console.error = old_error
+				}, options);
+			});
+		</script>
+	</body>
+</html>
