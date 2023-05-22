@@ -38,7 +38,9 @@
 					const old_log = console.log
 					const old_error = console.error
 					console.log = this.echo
-					console.error = this.error
+					console.error = (...args) => {
+						this.error(...args.map(elt=>elt.replaceAll('%c', '')))
+					}
 					const f_getLocation = function(pn_lineNumber, p_infoTexts) {
 						return {
 							source: 'REPL' ,
