@@ -70,7 +70,7 @@
 						const examp = examples[  parseInt( command.slice(3) ) - 1  ]
 						this.exec(examp)
 						this.history().append(examp)
-					} else if (command) execProg('.print :+ "---> " {seq\n' + command + '\n}\n', f_getLocation, true)
+					} else if (command) execProg('.print :+ "---> " {seq\n' + command + '\n}\n', f_getLocation, true, peg)
 					console.log = old_log
 					console.error = old_error
 				}, options);
