@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Try FuncSug! (REPL)</title>
+		<link rel="shortcut icon" href="#">
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery.terminal/js/jquery.terminal.min.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal/css/jquery.terminal.min.css"/>
+		<style>
+			:root {
+				--size: 1.2;
+				--color: white;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script src="https://cdn.jsdelivr.net/gh/cl4cnam/funcSug/parserPy.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/cl4cnam/funcSug/interpreter.js"></script>
+		<script>
+			const examples = [
+				'4+5',
+				'(4 + 5)',
+				'par(55, 88)',
+				'|55, 88|',
+				'par(1,2) + par(30,40)',
+				`if par(true, false):
+						45
+					else:
+						77`,
+				`seq:
+						var a := 55
+						a *= 10
+						print(a)
+						345`,
+			]
+			const listExamples = examples.map(  (elt, index) => ''+(index+1)+') '+elt  ).join('\n')
+			const options = {
+				prompt: '[[;#6666ff;]FuncSug Snippet: >  ]',
+				greetings: "[[;#ffffc0;]|===============|\n" +
+				           "|  FuncSug      |\n" +
+				           "|===============|]\n" +
+				           "[[;#cccccc;]This terminal supports no DOM function.]\n" +
+				           "[[;#cccccc;]CTRL+ENTER to insert a newline.]\n" +
+				           "[[;#cccccc;]Type 'examples' to re-display the list of examples.]\n" +
+				           "[[;#cccccc;]Type 'exN' to execute the example #N.]\n" +
+				           "[[;#cccccc;]List of examples:]\n" + listExamples,
+				keymap: {
+					'CTRL+ENTER': function(e, originalEffectFunction) {
+						this.insert('\n					')
+					}
+				}
+			}
+			$(function() {
+				$('body').terminal(function(command, t) {
+					const old_log = console.log
+					const old_error = console.error
+					console.log = this.echo
+					console.error = (...args) => {
+						this.error(...args.map(elt=>elt.replaceAll('%c', '')))
+					}
+					const f_getLocation = function(pn_lineNumber, p_infoTexts) {
+						return {
+							source: 'REPL' ,
+							line: 1
+						}
+					}
+					if (command === 'examples') {
+						this.echo(listExamples)
+					} else if (command.startsWith('ex') && !isNaN(parseInt(command.slice(2))) ) {
+						const examp = examples[  parseInt( command.slice(2) ) - 1  ]
+						this.exec(examp)
+						this.history().append(examp)
+					//~ } else if (command) execProg('.print :+ "---> " {seq\n' + command + '\n}\n', f_getLocation, true, pegPy)
+					} else if (command) {
+						const transCommand = 'echo blockCall0 +:\n\t"---> "\n\tseq:\n\t\t' + command.replaceAll('\n\t\t\t\t\t','\n\t\t') + '\n'
+						//~ console.warn(transCommand)
+						execProg(transCommand, f_getLocation, true, pegPy)
+					}
+					console.log = old_log
+					console.error = old_error
+				}, options);
+			});
+		</script>
+	</body>
+</html>
